@@ -1,9 +1,13 @@
 app:
-  name: "qolio_extender"
+  name: "effective"
   env: "STAGE"
 http:
   port: "8080"
   bind: "0.0.0.0"
+api:
+  age_url: "https://api.agify.io"
+  gender_url: "https://api.genderize.io"
+  nationality_url: "https://api.nationalize.io"
 db:
   url: "postgres://postgres:postgres@localhost:5432/qolio_extender?sslmode=disable"
   connect_time_out: 5

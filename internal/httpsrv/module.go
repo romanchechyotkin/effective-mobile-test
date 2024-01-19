@@ -5,17 +5,21 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/romanchechyotkin/effective-mobile-test-task/pkg/api"
+
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
-const moduleName = "http_server"
+const ModuleName = "http_server"
 
 func NewModule() fx.Option {
 	return fx.Module(
-		moduleName,
+		ModuleName,
 
 		fx.Provide(NewServer, NewConfig),
+
+		fx.Options(api.NewModule()),
 
 		fx.Invoke(func(server *Server, log *zap.Logger, lc fx.Lifecycle) {
 			lc.Append(
@@ -41,7 +45,7 @@ func NewModule() fx.Option {
 		}),
 
 		fx.Decorate(func(log *zap.Logger) *zap.Logger {
-			return log.Named(moduleName)
+			return log.Named(ModuleName)
 		}),
 	)
 }

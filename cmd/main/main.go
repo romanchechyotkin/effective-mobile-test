@@ -6,7 +6,7 @@ import (
 
 // @title Swagger Documentation
 // @version 1.0
-// @description Effective Mobile test task in Gin Framework
+// @description Effective Mobile test task
 // @host localhost:8080
 func main() {
 	app.NewApp().Run()

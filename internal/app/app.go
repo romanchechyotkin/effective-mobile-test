@@ -3,11 +3,8 @@ package app
 import (
 	"context"
 	"embed"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-	"github.com/romanchechyotkin/effective-mobile-test-task/internal/config"
 	"github.com/romanchechyotkin/effective-mobile-test-task/internal/httpsrv"
+	"github.com/romanchechyotkin/effective-mobile-test-task/pkg/config"
 	"github.com/romanchechyotkin/effective-mobile-test-task/pkg/logger"
 
 	"go.uber.org/fx"
@@ -45,18 +42,10 @@ func NewApp() *fx.App {
 	)
 }
 
-func HttpServerOnStart(server *httpsrv.Server) fx.Hook {
+func HttpServerOnStart(server httpsrv.HTTPServer) fx.Hook {
 	return fx.Hook{
 		OnStart: func(ctx context.Context) error {
-
-			server.Router.GET("/status", func(ctx *gin.Context) {
-				ctx.String(http.StatusOK, "ok\n")
-			})
-
-			usersGroup := server.Router.Group("/users")
-			usersGroup.GET("/")
-			usersGroup.POST("/")
-
+			server.RegisterRoutes()
 			return nil
 		},
 	}

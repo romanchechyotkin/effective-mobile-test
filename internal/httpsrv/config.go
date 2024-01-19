@@ -2,15 +2,13 @@ package httpsrv
 
 import (
 	"fmt"
-	"time"
 
 	"go.uber.org/config"
 )
 
 type HTTPConfig struct {
-	Port        string        `yaml:"port"`
-	Bind        string        `yaml:"bind"`
-	IdleTimeout time.Duration `yaml:"idle_timeout"`
+	Port string `yaml:"port"`
+	Bind string `yaml:"bind"`
 }
 
 func NewConfig(provider *config.YAML) (*HTTPConfig, error) {
