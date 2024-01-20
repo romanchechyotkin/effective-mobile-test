@@ -5,9 +5,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/romanchechyotkin/effective-mobile-test-task/internal/storage"
 	"github.com/romanchechyotkin/effective-mobile-test-task/pkg/api"
-	"github.com/romanchechyotkin/effective-mobile-test-task/pkg/db"
-	"github.com/romanchechyotkin/effective-mobile-test-task/schema"
 
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -19,21 +18,18 @@ func NewModule() fx.Option {
 	return fx.Module(
 		ModuleName,
 
-		fx.Provide(NewServer, NewConfig),
+		fx.Provide(NewServer, NewConfig, storage.NewCollection),
 
-		fx.Options(api.NewModule(), db.NewModule()),
+		fx.Options(api.NewModule(), storage.NewModule()),
 
 		fx.Invoke(func(
 			lc fx.Lifecycle,
 			log *zap.Logger,
 			server *Server,
-			dbCfg *db.Config,
 		) {
 			lc.Append(
 				fx.Hook{
 					OnStart: func(_ context.Context) error {
-						db.Migrate(log, &schema.DB, dbCfg.URL)
-
 						go func() {
 							log.Info("http-server listen and serve", zap.String("address", server.base.Addr))
 							if err := server.base.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {

@@ -51,7 +51,3 @@ func NewQBuilder(log *zap.Logger, cfg *Config) (*QBuilder, error) {
 func (qb QBuilder) Pool() *pgxpool.Pool {
 	return qb.pool
 }
-
-func (qb QBuilder) ConnString() string {
-	return qb.pool.Config().ConnString()
-}

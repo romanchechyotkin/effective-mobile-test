@@ -12,6 +12,10 @@ import (
 	"go.uber.org/zap"
 )
 
+type HTTPServer interface {
+	RegisterRoutes()
+}
+
 //go:embed config.yaml
 var configFs embed.FS
 
@@ -41,7 +45,7 @@ func NewApp() *fx.App {
 	)
 }
 
-func HttpServerOnStart(server httpsrv.HTTPServer) fx.Hook {
+func HttpServerOnStart(server HTTPServer) fx.Hook {
 	return fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			server.RegisterRoutes()

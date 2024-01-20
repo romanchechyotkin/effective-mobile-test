@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/romanchechyotkin/effective-mobile-test-task/internal/httpsrv/middleware"
+	"github.com/romanchechyotkin/effective-mobile-test-task/internal/storage/dbo"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -102,18 +103,24 @@ func (s *Server) createUser(ctx *gin.Context) {
 		Nationality: userNationality,
 	}
 
-	//id, err := h.repository.saveUser(ctx, response)
-	//if err != nil {
-	//	logger.Error(h.log, "error during saving user to database", err)
-	//	ctx.JSON(http.StatusInternalServerError, gin.H{
-	//		"error": err.Error(),
-	//	})
-	//	return
-	//}
-	//
-	//response.ID = id
-	//
-	//h.log.Info("user created", slog.Any("user", response))
+	id, err := s.storage.Users().Create(ctx, dbo.NewUser(
+		userDto.LastName,
+		userDto.FirstName,
+		userDto.SecondName,
+		userAge, userGender,
+		userNationality,
+	))
+	if err != nil {
+		s.log.Error("failed to save user into database", zap.Any("user", response), zap.Error(err))
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	response.ID = id
+
+	s.log.Info("user created", zap.Any("user", response))
 	ctx.JSON(http.StatusCreated, response)
 }
 
