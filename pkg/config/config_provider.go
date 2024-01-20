@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	appConfigFile = "config.yaml"
+	AppConfigFile = "config.yaml"
 )
 
 func NewConfigProvider(configFs *embed.FS) func() (*config.YAML, error) {
@@ -18,7 +18,7 @@ func NewConfigProvider(configFs *embed.FS) func() (*config.YAML, error) {
 			return nil, err
 		}
 
-		sources := make([]config.YAMLOption, 0, 3)
+		sources := make([]config.YAMLOption, 0, 2)
 		sources = append(sources, fileYmlOpt)
 
 		return config.NewYAML(sources...)
@@ -26,7 +26,7 @@ func NewConfigProvider(configFs *embed.FS) func() (*config.YAML, error) {
 }
 
 func GetFileYmlOpt(configFs *embed.FS) (config.YAMLOption, error) {
-	file, err := configFs.Open(appConfigFile)
+	file, err := configFs.Open(AppConfigFile)
 	if err != nil {
 		return nil, err
 	}
