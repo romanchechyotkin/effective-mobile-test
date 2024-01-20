@@ -1,4 +1,4 @@
-package logger
+package app
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewLog(options ...zap.Option) (*zap.Logger, error) {
+func NewLogger(options ...zap.Option) (*zap.Logger, error) {
 	e := strings.ToUpper(os.Getenv("APP_ENV"))
 
 	switch e {

@@ -1,8 +1,9 @@
 package api
 
 import (
-	"go.uber.org/zap"
 	"net/http"
+
+	"go.uber.org/zap"
 )
 
 type Client struct {
@@ -12,9 +13,13 @@ type Client struct {
 }
 
 func NewClient(cfg *Config, logger *zap.Logger) *Client {
-	return &Client{
+	c := &Client{
 		cfg:    cfg,
 		log:    logger,
 		client: http.DefaultClient,
 	}
+
+	c.log.Debug("api client configuration", zap.Any("cfg", cfg))
+
+	return c
 }

@@ -2,13 +2,13 @@ package httpsrv
 
 import (
 	"context"
-	"go.uber.org/zap"
 	"net/http"
 	"sync"
 
 	"github.com/romanchechyotkin/effective-mobile-test-task/internal/httpsrv/middleware"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func (s *Server) RegisterRoutes() {

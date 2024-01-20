@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/romanchechyotkin/effective-mobile-test-task/pkg/api"
+	"github.com/romanchechyotkin/effective-mobile-test-task/pkg/db"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -14,17 +15,19 @@ type Server struct {
 	base   *http.Server
 	router *gin.Engine
 	client *api.Client
+	db     *db.QBuilder
 }
 
 type HTTPServer interface {
 	RegisterRoutes()
 }
 
-func NewServer(cfg *HTTPConfig, log *zap.Logger, apiClient *api.Client) (*Server, error) {
+func NewServer(cfg *HTTPConfig, log *zap.Logger, apiClient *api.Client, builder *db.QBuilder) (*Server, error) {
 	instance := Server{
 		log:    log,
 		router: gin.Default(),
 		client: apiClient,
+		db:     builder,
 	}
 
 	instance.base = &http.Server{
@@ -32,7 +35,7 @@ func NewServer(cfg *HTTPConfig, log *zap.Logger, apiClient *api.Client) (*Server
 		Handler: instance.router,
 	}
 
-	instance.log.Debug("cfg", zap.Any("cfg", cfg))
+	instance.log.Debug("http server configuration", zap.Any("cfg", cfg))
 
 	return &instance, nil
 }

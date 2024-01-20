@@ -3,9 +3,9 @@ package app
 import (
 	"context"
 	"embed"
+
 	"github.com/romanchechyotkin/effective-mobile-test-task/internal/httpsrv"
 	"github.com/romanchechyotkin/effective-mobile-test-task/pkg/config"
-	"github.com/romanchechyotkin/effective-mobile-test-task/pkg/logger"
 
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
@@ -18,9 +18,8 @@ var configFs embed.FS
 func NewApp() *fx.App {
 	return fx.New(
 		fx.Provide(
-			logger.NewLog,
 			config.NewConfigProvider(&configFs),
-			NewAppConfig,
+			NewLogger,
 		),
 
 		fx.Options(
