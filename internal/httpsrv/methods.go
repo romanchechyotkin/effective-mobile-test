@@ -2,6 +2,8 @@ package httpsrv
 
 import (
 	"context"
+	"errors"
+	"github.com/jackc/pgx/v5"
 	"net/http"
 	"sync"
 
@@ -24,7 +26,7 @@ func (s *Server) RegisterRoutes() {
 	usersGroup.POST("/", s.createUser)
 	usersGroup.GET("/:id")
 	usersGroup.PATCH("/:id")
-	usersGroup.DELETE("/:id")
+	usersGroup.DELETE("/:id", s.deleteUser)
 }
 
 // @Summary Create user
@@ -132,8 +134,8 @@ func (s *Server) createUser(ctx *gin.Context) {
 //func (s *Server) getAllUsers(ctx *gin.Context) {
 //	sort := ctx.Query("sort")
 //	limit := ctx.Query("limit")
-//	h.log.Debug("got sort query value", slog.String("sort", sort))
-//	h.log.Debug("got limit query value", slog.String("limit", limit))
+//	s.log.Debug("got sort query value", zap.String("sort", sort))
+//	s.log.Debug("got limit query value", zap.String("limit", limit))
 //
 //	var users []*UserResponseDto
 //	var err error
@@ -161,15 +163,6 @@ func (s *Server) createUser(ctx *gin.Context) {
 //	}
 //
 //	ctx.JSON(http.StatusOK, users)
-//}
-
-// @Summary Users Endpoint Health Check
-// @Description Checking health of users endpoint
-// @Produce application/json
-// @Success 200 {string} nasa
-// @Router /users/health [get]
-//func (s *Server) index(ctx *gin.Context) {
-//	ctx.String(http.StatusOK, "users")
 //}
 
 // @Summary Get exact user
@@ -250,26 +243,29 @@ func (s *Server) createUser(ctx *gin.Context) {
 // @Success 204 {object} UserResponseDto
 // @Param id path string true "id"
 // @Router /users/{id} [delete]
-//func (s *Server) deleteUser(ctx *gin.Context) {
-//	id := ctx.Param("id")
-//	h.log.Debug("got id param", slog.String("id", id))
-//
-//	err := h.repository.deleteUser(ctx, id)
-//	if err != nil {
-//		logger.Error(h.log, "error during db query", err)
-//		if errors.Is(err, ErrNotFound) {
-//			ctx.JSON(http.StatusNotFound, gin.H{
-//				"error": err.Error(),
-//			})
-//		} else {
-//			ctx.JSON(http.StatusInternalServerError, gin.H{
-//				"error": err.Error(),
-//			})
-//		}
-//		return
-//	}
-//
-//	ctx.JSON(http.StatusNoContent, gin.H{
-//		"message": "deleted successfully",
-//	})
-//}
+func (s *Server) deleteUser(ctx *gin.Context) {
+	id := ctx.Param("id")
+	s.log.Debug("got id param", zap.String("id", id))
+
+	err := s.storage.Users().Delete(ctx, id)
+	if errors.Is(err, pgx.ErrNoRows) {
+		s.log.Debug("user not found", zap.String("user id", id))
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "user not found",
+		})
+		return
+	}
+
+	if err != nil {
+		s.log.Error("failed to delete user", zap.String("user id", id), zap.Error(err))
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "deleted successfully",
+		"id":      id,
+	})
+}

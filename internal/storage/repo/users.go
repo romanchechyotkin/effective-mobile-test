@@ -2,12 +2,10 @@ package repo
 
 import (
 	"context"
-
-	"github.com/romanchechyotkin/effective-mobile-test-task/internal/storage/dbo"
-	"github.com/romanchechyotkin/effective-mobile-test-task/pkg/db"
-
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/romanchechyotkin/effective-mobile-test-task/internal/storage/dbo"
+	"github.com/romanchechyotkin/effective-mobile-test-task/pkg/db"
 )
 
 type QueryBuilder interface {
@@ -42,4 +40,19 @@ returning id`
 	}
 
 	return model.ID, nil
+}
+
+func (repo *Users) Delete(ctx context.Context, id string) error {
+	q := `delete from users where users.id = $1`
+
+	res, err := repo.qb.Pool().Exec(ctx, q, id)
+	if err != nil {
+		return err
+	}
+
+	if res.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+
+	return nil
 }
