@@ -3,7 +3,6 @@ package httpsrv
 import (
 	"context"
 	"errors"
-	"github.com/jackc/pgx/v5"
 	"net/http"
 	"sync"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/romanchechyotkin/effective-mobile-test-task/internal/storage/dbo"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 	"go.uber.org/zap"
 )
 
@@ -24,7 +24,7 @@ func (s *Server) RegisterRoutes() {
 	usersGroup := s.router.Group("/users")
 	usersGroup.GET("/")
 	usersGroup.POST("/", s.createUser)
-	usersGroup.GET("/:id")
+	usersGroup.GET("/:id", s.getUser)
 	usersGroup.PATCH("/:id")
 	usersGroup.DELETE("/:id", s.deleteUser)
 }
@@ -171,27 +171,29 @@ func (s *Server) createUser(ctx *gin.Context) {
 // @Success 200 {object} UserResponseDto
 // @Param id path string true "id"
 // @Router /users/{id} [get]
-//func (s *Server) getUser(ctx *gin.Context) {
-//	id := ctx.Param("id")
-//	h.log.Debug("got id param", slog.String("id", id))
-//
-//	user, err := h.repository.getUser(ctx, id)
-//	if err != nil {
-//		logger.Error(h.log, "error during db query", err)
-//		if errors.Is(err, ErrNotFound) {
-//			ctx.JSON(http.StatusNotFound, gin.H{
-//				"error": err.Error(),
-//			})
-//		} else {
-//			ctx.JSON(http.StatusInternalServerError, gin.H{
-//				"error": err.Error(),
-//			})
-//		}
-//		return
-//	}
-//
-//	ctx.JSON(http.StatusOK, user)
-//}
+func (s *Server) getUser(ctx *gin.Context) {
+	id := ctx.Param("id")
+	s.log.Debug("got id param", zap.String("id", id))
+
+	user, err := s.storage.Users().GetUser(ctx, id)
+	if errors.Is(err, pgx.ErrNoRows) {
+		s.log.Debug("user not found", zap.String("user id", id))
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "user not found",
+		})
+		return
+	}
+
+	if err != nil {
+		s.log.Error("failed to get user", zap.String("user id", id), zap.Error(err))
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, user)
+}
 
 // @Summary Update exact user
 // @Description Endpoint for updating user with exact id

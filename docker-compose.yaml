@@ -1,0 +1,46 @@
+version: '3.7'
+
+services:
+  postgres:
+    container_name: postgres
+    build:
+      dockerfile: Dockerfile
+      context: internal/postgresql
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "5432"
+      POSTGRES_DB: "effective"
+    volumes:
+      - data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  server:
+    container_name: server
+    build:
+      dockerfile: Dockerfile
+      context: .
+    environment:
+      POSTGRES_HOST: "postgres"
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: "effective"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "5432"
+      ENVIRONMENT: "dev" # dev, prod
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+    ports:
+      - "8080:8080"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  data:
+  minio-storage:

@@ -1,0 +1,120 @@
+definitions:
+  users.UserResponseDto:
+    properties:
+      age:
+        type: integer
+      first_name:
+        type: string
+      gender:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      nationality:
+        type: string
+      second_name:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Effective Mobile test task in Gin Framework
+  title: Swagger Documentation
+  version: "1.0"
+paths:
+  /health:
+    get:
+      description: Checking health of backend
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Health Check
+  /users:
+    get:
+      description: Endpoint for getting all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/users.UserResponseDto'
+            type: array
+      summary: All users
+    post:
+      description: Endpoint for creating and saving user to database
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/users.UserResponseDto'
+      summary: Create user
+  /users/{id}:
+    delete:
+      description: Endpoint for deleting user with exact id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/users.UserResponseDto'
+      summary: Delete exact user
+    get:
+      description: Endpoint for getting user with exact id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/users.UserResponseDto'
+      summary: Get exact user
+    patch:
+      description: Endpoint for updating user with exact id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/users.UserResponseDto'
+      summary: Update exact user
+  /users/health:
+    get:
+      description: Checking health of users endpoint
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Users Endpoint Health Check
+swagger: "2.0"
